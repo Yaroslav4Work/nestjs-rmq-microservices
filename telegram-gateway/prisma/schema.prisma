@@ -1,0 +1,40 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProcessedEventStatus {
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
+model TelegramChat {
+  id        String   @id @default(uuid())
+  chatId    String   @unique
+  firstName String?
+  username  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProcessedEvent {
+  id            String               @id @default(uuid())
+  correlationId String               @unique
+  eventName     String
+  status        ProcessedEventStatus @default(PROCESSING)
+  attempts      Int                  @default(0)
+  lastError     String?
+  payload       Json
+  processedAt   DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([status, createdAt])
+}
